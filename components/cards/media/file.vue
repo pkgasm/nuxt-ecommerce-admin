@@ -18,6 +18,7 @@
           color="red"
           icon="mdi-trash-can"
           size="x-small"
+          @click="remove"
         ></v-btn>
       </div>
       <template v-slot:placeholder>
@@ -35,6 +36,8 @@
   </v-card>
 </template>
 <script setup>
+import { useConfirm } from "primevue/useconfirm";
+
 const props = defineProps({
   media: {
     type: Object,
@@ -42,7 +45,10 @@ const props = defineProps({
   },
 });
 
+const emit = defineEmits(["remove"]);
+
 const nuxtApp = useNuxtApp();
+const confirm = useConfirm();
 
 const state = reactive({
   url: "",
@@ -63,6 +69,20 @@ watch(props.media, () => {
 onMounted(() => {
   initialize();
 });
+
+const remove = () => {
+  confirm.require({
+    message: "¿Quieres eliminar este archivo?",
+    header: "Eliminar",
+    icon: "pi pi-exclamation-triangle",
+    acceptLabel: "Aceptar",
+    rejectLabel: "Cancelar",
+    accept: () => {
+      emit("remove", props.media);
+      confirm.close();
+    },
+  });
+};
 
 const initialize = () => {
   if (props.media) {

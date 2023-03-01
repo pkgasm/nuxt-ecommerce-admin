@@ -18,4 +18,10 @@ export default class Media {
       headers: headers,
     });
   }
+  delete(id) {
+    const headers = getHeaders();
+    return axios.delete(`${this.baseUrl}api/v1/media/upload/${id}`, {
+      headers: headers,
+    });
+  }
 }

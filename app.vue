@@ -1,12 +1,6 @@
 <template>
   <NuxtLayout>
+    <confirm-dialog></confirm-dialog>
     <NuxtPage />
   </NuxtLayout>
 </template>
-<script>
-export default {
-  data() {
-    return {};
-  },
-};
-</script>

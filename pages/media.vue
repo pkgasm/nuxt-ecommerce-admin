@@ -15,6 +15,7 @@
           class="mx-3 my-3"
           v-for="m of state.media"
           :media="m"
+          @remove="removeMedia"
         />
       </v-card-text>
     </v-card>
@@ -39,6 +40,25 @@ const state = reactive({
   media: [],
   dialogUploader: false,
 });
+
+const removeMedia = async (media) => {
+  try {
+    await api.media.delete(media.id);
+    const files = state.media.slice();
+    const index = state.media.findIndex((m) => m.id === media.id);
+    files.splice(index, 1);
+    state.media = [];
+    nextTick(() => {
+      state.media = files;
+    });
+  } catch (error) {
+    if (error?.response?.data) {
+      toast.error(error.response.data.message);
+    } else {
+      toast.error("Ha ocurrido un error");
+    }
+  }
+};
 
 const uploaderSelectedFiles = (files) => {
   files = [...files, ...state.media];
