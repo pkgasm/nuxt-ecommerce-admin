@@ -3,9 +3,7 @@
     <v-card color="grey-lighten-4" flat rounded="0">
       <v-toolbar color="primary" density="compact">
         <v-toolbar-title>Media Library</v-toolbar-title>
-
         <v-spacer></v-spacer>
-
         <v-btn icon @click="state.dialogUploader = true">
           <v-icon>mdi-file-plus</v-icon>
         </v-btn>

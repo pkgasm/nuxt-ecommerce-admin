@@ -24,4 +24,11 @@ export default class Media {
       headers: headers,
     });
   }
+  download(id) {
+    const headers = getHeaders();
+    return axios.get(`${this.baseUrl}api/v1/media/download/${id}`, {
+      headers: headers,
+      responseType: "blob",
+    });
+  }
 }

@@ -1,20 +1,20 @@
 <template>
   <v-card class="card" variant="text">
     <v-img
-      class="w-100 text-white"
+      class="card__image w-100 text-white"
       :src="urlPreview"
       lazy-src="/img/icons/files/unknow.svg"
-      cover
     >
-      <div class="mt-2 mr-1 d-flex justify-end">
+      <div class="mt-2 d-flex justify-end">
         <v-btn
-          class="m-2"
+          class="mr-2"
           color="primary"
-          icon="mdi-pencil"
+          icon="mdi-download"
           size="x-small"
+          :loading="loading.download"
+          @click="download"
         ></v-btn>
         <v-btn
-          class="ml-2"
           color="red"
           icon="mdi-trash-can"
           size="x-small"
@@ -49,10 +49,15 @@ const emit = defineEmits(["remove"]);
 
 const nuxtApp = useNuxtApp();
 const confirm = useConfirm();
+const api = useApi();
 
 const state = reactive({
   url: "",
   name: "",
+});
+
+const loading = reactive({
+  download: false,
 });
 
 const urlPreview = computed(() => {
@@ -69,6 +74,21 @@ watch(props.media, () => {
 onMounted(() => {
   initialize();
 });
+
+const download = async () => {
+  loading.download = true;
+  try {
+    const response = await api.media.download(props.media.id);
+    nuxtApp.$downloadBlob(response.data, state.name);
+  } catch (error) {
+    if (error?.response?.data) {
+      toast.error(error.response.data.message);
+    } else {
+      toast.error("Ha ocurrido un error");
+    }
+  }
+  loading.download = false;
+};
 
 const remove = () => {
   confirm.require({
@@ -97,6 +117,9 @@ const initialize = () => {
   width: 90px;
   @include screen(tablet) {
     width: 120px;
+  }
+  &__image {
+    height: 135px;
   }
 }
 </style>

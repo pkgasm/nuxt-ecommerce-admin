@@ -23,6 +23,17 @@ export const img2Base64 = (blob) => {
   });
 };
 
+export const downloadBlob = (blob, fileName) => {
+  const url  = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = fileName
+  document.body.appendChild(a);
+  a.click();
+  URL.revokeObjectURL(url);
+  a.remove()
+}
+
 export const getExtByMimeType = (mimeType) => {
   switch (mimeType) {
     case "image/gif":
