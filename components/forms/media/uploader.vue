@@ -1,10 +1,17 @@
 <template>
   <v-card class="card">
     <v-toolbar color="primary">
-      <v-toolbar-title>Uploader</v-toolbar-title>
+      <v-btn class="mobile" icon="mdi-close" @click="$emit('close')"> </v-btn>
+      <v-toolbar-title>Subir archivos</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon dark @click="$emit('close')">
-        <v-icon>mdi-close</v-icon>
+      <v-btn class="desktop" icon="mdi-close" @click="$emit('close')"> </v-btn>
+      <v-btn
+        v-if="store.screen.mobile && state.files.length > 0"
+        class="mobile"
+        @click="upload"
+        :loading="state.loading.upload"
+      >
+        Subir
       </v-btn>
     </v-toolbar>
     <v-tabs v-model="state.tab">
@@ -32,52 +39,74 @@
           </v-card-text>
         </v-card>
       </v-window-item>
-      <v-window-item value="upload">
-        <div
-          v-if="state.files.length === 0"
-          class="card__upload mx-5 my-5 d-flex flex-column justify-center align-center"
-          @drop.prevent="onDrop"
-        >
-          <div class="text-h6 text-center">Drag & Drop to Upload File</div>
-          <div>
-            <v-btn class="mt-2" color="primary" size="small">Seleccionar</v-btn>
-          </div>
-        </div>
-        <div v-else class="card__files">
-          <div class="d-flex flex-wrap">
-            <cards-media-file-upload
-              v-for="(f, i) of state.files"
-              v-model="state.files[i].upload"
-              :url="f.url"
-              :name="f.name"
-              :mimeType="f.mimeType"
-              class="mx-3 mt-3"
+      <v-window-item class="card__upload" value="upload">
+        <v-card>
+          <v-card-text>
+            <input
+              ref="inputFile"
+              hidden
+              type="file"
+              multiple
+              @input="onInputFile"
             />
-          </div>
-        </div>
-        <div v-if="state.files.length > 0" class="mx-5 mb-4 d-flex justify-end">
-          <v-btn
-            class="ml-2"
-            color="primary"
-            variant="plain"
-            @click="$emit('close')"
-          >
-            Cerrar
-          </v-btn>
-          <v-btn
-            class="ml-2"
-            color="primary"
-            @click="upload"
-            :loading="state.loading.upload"
-            >Subir</v-btn
-          >
-        </div>
+            <div
+              v-if="store.screen.desktop && state.files.length === 0"
+              class="card__upload__zone d-flex flex-column justify-center align-center"
+              @drop.prevent="onInputFile"
+            >
+              <div class="text-h6 text-center">Drag & Drop to Upload File</div>
+              <div>
+                <v-btn
+                  class="mt-2"
+                  color="primary"
+                  size="small"
+                  @click="selectFiles"
+                >
+                  Seleccionar
+                </v-btn>
+              </div>
+            </div>
+            <div
+              v-if="store.screen.mobile && state.files.length === 0"
+              class="mt-5 d-flex justify-center"
+            >
+              <v-btn color="primary" size="small" @click="selectFiles">
+                Seleccionar
+              </v-btn>
+            </div>
+            <div
+              v-if="state.files.length > 0"
+              class="card__upload__files d-flex flex-wrap"
+            >
+              <cards-media-file-upload
+                v-for="(f, i) of state.files"
+                v-model="state.files[i].upload"
+                :url="f.url"
+                :name="f.name"
+                :mimeType="f.mimeType"
+                class="mx-3 mt-3"
+              />
+            </div>
+          </v-card-text>
+          <v-card-actions v-if="store.screen.desktop && state.files.length > 0">
+            <v-spacer></v-spacer>
+            <v-btn color="red" @click="$emit('close')"> Cerrar </v-btn>
+            <v-btn
+              color="primary"
+              @click="upload"
+              :loading="state.loading.upload"
+            >
+              Subir
+            </v-btn>
+          </v-card-actions>
+        </v-card>
       </v-window-item>
     </v-window>
   </v-card>
 </template>
 <script setup>
 import { useToast } from "vue-toastification";
+import { useStore } from "~/store";
 
 const events = ["dragenter", "dragover", "dragleave", "drop"];
 const props = defineProps({
@@ -97,10 +126,12 @@ const props = defineProps({
 
 const nuxtApp = useNuxtApp();
 const toast = useToast();
+const store = useStore();
 const api = useApi();
 
 const emit = defineEmits(["selectedFiles", "close"]);
 
+const inputFile = ref(null);
 const state = reactive({
   tab: "select",
   files: [],
@@ -111,6 +142,12 @@ const state = reactive({
 
 onMounted(() => {
   initialize();
+
+  events.forEach((eventName) => {
+    document.body.addEventListener(eventName, (e) => {
+      e.preventDefault();
+    });
+  });
 });
 
 const upload = async () => {
@@ -139,8 +176,8 @@ const upload = async () => {
   state.loading.upload = false;
 };
 
-const onDrop = async (e) => {
-  const files = e.dataTransfer.files;
+const onInputFile = async (e) => {
+  const files = e.dataTransfer?.files ?? event.target.files;
   const mapFiles = [];
   for (let f of files) {
     if (f.size / 1024 > 1024) continue;
@@ -149,7 +186,7 @@ const onDrop = async (e) => {
     const name = f.name.slice(0, index);
     const mf = {};
     mf.blob = f;
-    mf.url = f.type.includes("image") ? await nuxtApp.$img2Base64(f) : "";
+    mf.url = f.type.includes("image") ? await nuxtApp.$utils.img2Base64(f) : "";
     mf.name = nuxtApp.$string.dashCase(name) + "." + split[split.length - 1];
     mf.mimeType = f.type;
     mf.upload = true;
@@ -158,33 +195,36 @@ const onDrop = async (e) => {
   state.files = mapFiles;
 };
 
+const selectFiles = () => {
+  inputFile.value.click();
+};
+
 const initialize = () => {
   if (props.onlyUpload) state.tab = "upload";
-
-  events.forEach((eventName) => {
-    document.body.addEventListener(eventName, (e) => {
-      e.preventDefault();
-    });
-  });
 };
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
 @import "@/assets/variables.scss";
 .card {
   &__upload {
-    border-color: #001b59;
-    border-style: solid;
-    border-radius: 10px;
-    height: 200px;
-    @include screen(tablet) {
-      height: 500px;
+    &__zone {
+      border-color: #001b59;
+      border-style: solid;
+      border-radius: 10px;
+      @include screen(tablet) {
+        height: 500px;
+      }
+    }
+    &__files {
+      overflow-y: auto;
+      @include screen(tablet) {
+        height: 100%;
+        margin-top: auto;
+      }
     }
   }
-  &__files {
-    overflow-y: auto;
-    @include screen(tablet) {
-      height: 500px;
-    }
-  }
+}
+.v-card {
+  border-style: none;
 }
 </style>

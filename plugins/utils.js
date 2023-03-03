@@ -7,10 +7,15 @@ import {
   downloadBlob,
 } from "~/utils/index";
 
+const utils = {
+  img2Base64,
+  getExtByMimeType,
+  downloadBlob,
+  widthScreen,
+};
+
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.provide("rules", rules);
-  nuxtApp.provide("img2Base64", img2Base64);
-  nuxtApp.provide("getExtByMimeType", getExtByMimeType);
-  nuxtApp.provide("downloadBlob", downloadBlob);
+  nuxtApp.provide("utils", utils);
   nuxtApp.provide("string", string);
 });

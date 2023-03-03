@@ -64,7 +64,9 @@ const urlPreview = computed(() => {
   if (!props.media) return "";
   return props.media.mimeType.includes("image")
     ? state.url
-    : `img/icons/files/${nuxtApp.$getExtByMimeType(props.media.mimeType)}.svg`;
+    : `img/icons/files/${nuxtApp.$utils.getExtByMimeType(
+        props.media.mimeType
+      )}.svg`;
 });
 
 watch(props.media, () => {
@@ -79,7 +81,7 @@ const download = async () => {
   loading.download = true;
   try {
     const response = await api.media.download(props.media.id);
-    nuxtApp.$downloadBlob(response.data, state.name);
+    nuxtApp.$utils.downloadBlob(response.data, state.name);
   } catch (error) {
     if (error?.response?.data) {
       toast.error(error.response.data.message);

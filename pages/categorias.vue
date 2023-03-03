@@ -77,7 +77,14 @@
         </v-tooltip>
       </template>
     </v-data-table>
-    <v-dialog v-model="state.dialogCategory" max-width="500px">
+    <v-dialog
+      v-model="state.dialogCategory"
+      max-width="500px"
+      persistent
+      :fullscreen="$device.isMobile"
+      :scrim="!$device.isMobile"
+      :transition="$device.isMobile ? 'dialog-bottom-transition' : false"
+    >
       <forms-admin-category
         v-if="state.dialogCategory"
         :category="state.editCategory"

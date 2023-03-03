@@ -24,15 +24,56 @@ export const img2Base64 = (blob) => {
 };
 
 export const downloadBlob = (blob, fileName) => {
-  const url  = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = fileName
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fileName;
   document.body.appendChild(a);
   a.click();
   URL.revokeObjectURL(url);
-  a.remove()
-}
+  a.remove();
+};
+
+export const widthScreen = () => {
+  const screens = {
+    "mobile-xs": {
+      minWidth: 0,
+      maxWidth: 320,
+    },
+    "mobile-small": {
+      minWidth: 320,
+      maxWidth: 360,
+    },
+    "mobile-big": {
+      minWidth: 360,
+      maxWidth: 640,
+    },
+    tablet: {
+      minWidth: 640,
+      maxWidth: 769,
+    },
+    landscape: {
+      minWidth: 769,
+      maxWidth: 1024,
+    },
+    desktop: {
+      minWidth: 1024,
+      maxWidth: 1200,
+    },
+    "desktop-big": {
+      maxWidth: 1200,
+      maxWidth: 1440,
+    },
+  };
+  const width = window.innerWidth;
+  let screen = "";
+  Object.keys(screens).forEach((key) => {
+    if (screen) return;
+    if (screens[key].minWidth < width && width <= screens[key].maxWidth)
+      screen = key;
+  });
+  return screen;
+};
 
 export const getExtByMimeType = (mimeType) => {
   switch (mimeType) {

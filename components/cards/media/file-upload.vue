@@ -57,7 +57,7 @@ const value = computed({
 const imgPreview = computed(() => {
   return props.mimeType.includes("image")
     ? props.url
-    : `img/icons/files/${nuxtApp.$getExtByMimeType(props.mimeType)}.svg`;
+    : `img/icons/files/${nuxtApp.$utils.getExtByMimeType(props.mimeType)}.svg`;
 });
 </script>
 <style lang="scss" scoped>

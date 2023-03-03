@@ -17,7 +17,14 @@
         />
       </v-card-text>
     </v-card>
-    <v-dialog v-model="state.dialogUploader" class="media__uploader" persistent>
+    <v-dialog
+      v-model="state.dialogUploader"
+      class="media__uploader"
+      persistent
+      :fullscreen="store.screen.mobile"
+      :scrim="!store.screen.mobile"
+      :transition="store.screen.mobile ? 'dialog-bottom-transition' : false"
+    >
       <forms-media-uploader
         v-if="state.dialogUploader"
         only-upload
@@ -28,16 +35,21 @@
   </section>
 </template>
 <script setup>
+import { useStore } from "~/store";
+
 definePageMeta({
   middleware: ["admin"],
 });
 
+const store = useStore();
 const api = useApi();
 
 const state = reactive({
   media: [],
   dialogUploader: false,
 });
+
+onMounted(() => {});
 
 const removeMedia = async (media) => {
   try {
