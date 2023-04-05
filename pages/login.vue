@@ -1,7 +1,7 @@
 <template>
   <section class="login w-100 d-flex flex-row">
     <div class="desktop">
-      <img class="w-100 h-screen login__image" src="/img/image.png" />
+      <img class="w-100 h-screen login__image" src="/img/ciudad.jpeg" />
     </div>
     <div class="login__form d-flex flex-column justify-center">
       <forms-auth-login />
@@ -22,9 +22,6 @@ definePageMeta({
   }
   &__form {
     width: 100%;
-    @include screen(desktop) {
-      width: 50%;
-    }
   }
   &__image {
     @include screen(desktop) {
